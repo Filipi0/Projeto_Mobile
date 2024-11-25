@@ -1,38 +1,89 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Image } from 'react-native';
-import { Button } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, FlatList, Image, Modal } from "react-native";
+import InputField from "./components/Input";
+import SubmitButton from "./components/Submit";
 
 export default function App() {
+  const [model, setModel] = useState("");
+  const [year, setYear] = useState("");
+  const [price, setPrice] = useState("");
+  const [vehicles, setVehicles] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleAddVehicle = () => {
+    if (!model || !year || !price) {
+      alert("Por favor, preencha todos os campos!");
+      return;
+    }
+    const newVehicle = { id: Date.now().toString(), model, year, price };
+    setVehicles([...vehicles, newVehicle]);
+    setModel("");
+    setYear("");
+    setPrice("");
+    setModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
-      <Image
-        source={require('./assets/Daco_832227.png')}
-        style={{ width: 140, height: 140 }}
+      <View style={styles.imageRow}>
+        <Image
+          source={require("./assets/patrocinador.webp")}
+          style={styles.image}
+        />
+        <Image source={require("./assets/carros1.jpg")} style={styles.image} />
+      </View>
+
+      {/* Títulos */}
+      <Text style={styles.title}>Cadastre seu veículo</Text>
+      <Text style={styles.subtitle}>Ka-chow!</Text>
+
+      <InputField placeholder="Modelo" value={model} onChangeText={setModel} />
+      <InputField
+        placeholder="Ano"
+        value={year}
+        onChangeText={setYear}
+        keyboardType="numeric"
+      />
+      <InputField
+        placeholder="Preço"
+        value={price}
+        onChangeText={setPrice}
+        keyboardType="numeric"
       />
 
-      <Text style={styles.text1}>Cadastre seu jogador</Text>
+      <SubmitButton title="Cadastrar" onPress={handleAddVehicle} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Idade"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Numero da camisa"
-      />
-
-      <Button
-        style={styles.button}
-        title='Cadastrar'
-        onPress={() => alert('NOVO CRAQUE NO MENGÃO!!')}
-
+      {/* Lista de Veículos */}
+      <Text style={styles.listTitle}>Lista de veículos</Text>
+      <FlatList
+        data={vehicles}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <Text style={styles.listItem}>
+            {index + 1}. {item.model} - {item.year} - {item.price}
+          </Text>
+        )}
       />
 
-      <StatusBar style="auto" />
+      {/* Modal de Sucesso */}
+      <Modal
+        transparent
+        visible={modalVisible}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Image
+              source={require("./assets/logoCars.png")}
+              style={styles.modalImage}
+            />
+            <Text style={styles.modalTitle}>Veículo cadastrado</Text>
+            <Text style={styles.modalSubtitle}>com sucesso!</Text>
+            <SubmitButton title="Ok" onPress={() => setModalVisible(false)} />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -40,30 +91,72 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 50,
-    alignItems: 'center',
-  },
-
-  text1: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    backgroundColor: "#ff0000",
     padding: 20,
-    left: 100,
+    alignItems: "center",
   },
-
-  input: {
-    height: 40,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginVertical: 10,
-    width: '100%',
-    borderRadius: 16,
+  imageRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "60%",
+    marginVertical: 50,
   },
-
-  button: {
-    backgroundColor: 'black',
-    padding: 20,
+  image: {
+    width: 100,
+    height: 100,
     borderRadius: 5,
+  },
+  title: {
+    fontSize: 24,
+    color: "#fff",
+  },
+  subtitle: {
+    fontSize: 18,
+    color: "#fff",
+    marginBottom: 20,
+  },
+  listTitle: {
+    fontSize: 20,
+    color: "#fff",
+    marginVertical: 20,
+  },
+  listItem: {
+    fontSize: 16,
+    backgroundColor: "#ffff66",
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 8,
+    color: "#000",
+    fontWeight: "bold",
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalImage: {
+    width: 140,
+    height: 80,
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    color: "#ff0000",
+    textAlign: "center",
+  },
+  modalSubtitle: {
+    fontSize: 18,
+    color: "#ff0000",
+    textAlign: "center",
+    marginBottom: 20,
   },
 });
